@@ -4,8 +4,8 @@ import openpyxl
 category = {'RFP':3,'RFI':3,'GVE Support':1,'Complex Design':2}
 complexity ={'High':3,'Medium':2,'Low':1}
 status = {'WiP':1,'CE Pending':.1, 'Close':0}
-
-headers = ['customer','project','category','cat_effort','complexity','com_effort','effort','status','status_effort','region','tsa','user','total_hrs']
+headers = ['customer','project','category','cat_effort','complexity','com_effort','effort','status','status_effort','region','tsa','user','total_hrs','webex_user']
+webex_user = {'AH':'alejher2@cisco.com', 'FQ':'frquiroz@cisco.com'}
 
 excel_file_path1 = 'gve_sp_americas_report.xlsx'
 excel_file_path2 = '/mnt/c/Users/frquiroz/OneDrive - Cisco/Documents/00 GVE/gve fy24/GVE SP Americas Report.xlsx'
@@ -65,7 +65,9 @@ def add_gve_record(record_input):
             new_gve_record.records[key] = record_input[key]
     new_gve_record.records['cat_effort'] = category[new_gve_record.records['category']]
     new_gve_record.records['com_effort'] = complexity[new_gve_record.records['complexity']]
+    new_gve_record.records['com_effort'] = complexity[new_gve_record.records['complexity']]
     new_gve_record.records['status_effort'] = status[new_gve_record.records['status']]
+    new_gve_record.records['webex_user'] = webex_user[new_gve_record.records['tsa']]
     new_gve_record.records['effort'] = new_gve_record.records['cat_effort'] * new_gve_record.records['com_effort']
     new_gve_record.records['total_hrs'] = new_gve_record.records['effort'] * new_gve_record.records['status_effort']
     

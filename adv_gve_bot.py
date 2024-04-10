@@ -65,7 +65,7 @@ def greeting(incoming_msg):
 
     # Create a Response object and craft a reply in Markdown.
     response = Response()
-    response.markdown = "Hello {}, I'm a chat bot. ".format(sender.firstName)
+    response.markdown = f"Hello {sender.firstName}, I'm a chat bot. {sender.userName}"
     response.markdown += "See what I can do by asking for **/help**."
     return response
 
@@ -260,6 +260,177 @@ def show_card(incoming_msg):
     #print(f"Esto es el mensaje: {c}")
     return ""
 
+# make sure to take the data that comes out of the MS card designer and
+# put it inside of the "content" below, otherwise Webex won't understand
+# what you send it.
+def show_card_update(incoming_msg):
+
+    attachment =  {
+    
+        "contentType": "application/vnd.microsoft.card.adaptive",
+        "content": {
+            "type": "AdaptiveCard",
+            "body": [
+                {
+                    "type": "TextBlock",
+                    "text": "GVE SP Tracker (beta)",
+                    "size": "Medium",
+                    "color": "Dark"
+                },
+                {
+                    "type": "Input.Text",
+                    "placeholder": "Customer name",
+                    "id": "customer"
+                },
+                {
+                    "type": "Input.Text",
+                    "placeholder": "Name of the project",
+                    "id": "project"
+                },
+                {
+                    "type": "Input.ChoiceSet",
+                    "choices": [
+                        {
+                            "title": "RFP",
+                            "value": "RFP"
+                        },
+                        {
+                            "title": "RFI",
+                            "value": "RFI"
+                        },
+                        {
+                            "title": "GVE Support",
+                            "value": "GVE Support"
+                        },
+                        {
+                            "title": "Complex Design",
+                            "value": "Complex Design"
+                        }
+                    ],
+                    "placeholder": "Category of this engagement",
+                    "id": "category"
+                },
+                {
+                    "type": "Input.ChoiceSet",
+                    "choices": [
+                        {
+                            "title": "High",
+                            "value": "High"
+                        },
+                        {
+                            "title": "Medium",
+                            "value": "Medium"
+                        },
+                        {
+                            "title": "Low",
+                            "value": "Low"
+                        }
+                    ],
+                    "placeholder": "Estimated complexity",
+                    "id": "complexity"
+                },
+                {
+                    "type": "Input.ChoiceSet",
+                    "choices": [
+                        {
+                            "title": "WiP",
+                            "value": "WiP"
+                        },
+                        {
+                            "title": "CE Pending",
+                            "value": "CE Pending"
+                        },
+                        {
+                            "title": "Close",
+                            "value": "Close"
+                        }
+                    ],
+                    "placeholder": "Placeholder text",
+                    "id": "status",
+                },
+                {
+                    "type": "Input.ChoiceSet",
+                    "choices": [
+                        {
+                            "title": "AMER",
+                            "value": "AMER"
+                        },
+                        {
+                            "title": "EMEA",
+                            "value": "EMEA"
+                        },
+                        {
+                            "title": "APJC",
+                            "value": "APJC"
+                        }
+                    ],
+                    "placeholder": "Cisco region",
+                    "id": "region",
+                },
+                {
+                    "type": "Input.ChoiceSet",
+                    "choices": [
+                        {
+                            "title": "Alejandro Hernandez",
+                            "value": "AH"
+                        },
+                        {
+                            "title": "Francisco Quiroz",
+                            "value": "FQ"
+                        }
+                    ],
+                    "placeholder": "TSA Assigned",
+                    "id": "tsa",
+                },
+                {
+                    "type": "Input.ChoiceSet",
+                    "choices": [
+                        {
+                            "title": "Queue",
+                            "value": "Queue"
+                        },
+                        {
+                            "title": "GVE",
+                            "value": "GVE"
+                        },
+                        {
+                            "title": "Field",
+                            "value": "Field"
+                        }
+                    ],
+                    "placeholder": "Requester",
+                    "id": "user",
+                }     
+            ],
+            "actions": [{
+                    "type": "Action.Submit",
+                    "title": "Create",
+                    "data": "add",
+                    "style": "positive",
+                    "id": "button1"
+                },
+                {
+                    "type": "Action.Submit",
+                    "title": "Delete",
+                    "data": "remove",
+                    "style": "destructive",
+                    "id": "button2"
+                }
+            ],
+            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+            "version": "1.0"
+        }
+    }
+    
+
+    backupmessage = "This is an example using Adaptive Cards."
+
+    c = create_message_with_attachment(
+        incoming_msg.roomId, msgtxt=backupmessage, attachment=attachment )
+    #print(f"Esto es el mensaje: {c}")
+    return ""
+
+
 
 # An example of how to process card actions
 def handle_cards(api, incoming_msg):
@@ -373,6 +544,7 @@ bot.set_greeting(greeting)
 # Add new commands to the bot.
 bot.add_command("attachmentActions", "*", handle_cards)
 bot.add_command("/showcard", "show an adaptive card", show_card)
+bot.add_command("/update", "update a record", show_card_update)
 bot.add_command("/dosomething", "help for do something", do_something)
 bot.add_command("/demo", "Sample that creates a Teams message to be returned.", ret_message)
 bot.add_command("/time", current_time_help, current_time)
