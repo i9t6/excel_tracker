@@ -7,7 +7,8 @@ status = {'WiP':1,'CE Pending':.1, 'Close':0}
 
 headers = ['customer','project','category','cat_effort','complexity','com_effort','effort','status','status_effort','region','tsa','user','total_hrs']
 
-excel_file_path = 'gve_sp_americas_report.xlsx'
+excel_file_path1 = 'gve_sp_americas_report.xlsx'
+excel_file_path2 = '/mnt/c/Users/frquiroz/OneDrive - Cisco/Documents/00 GVE/gve fy24/GVE SP Americas Report.xlsx'
 gve_sheet = 'Bot'
 
 class gve_record:
@@ -75,14 +76,16 @@ def update_excel(new_record):
     print(f"El nuevo registro es {new_record}")
     new_data = list(new_record.values())
     
-    workbook = openpyxl.load_workbook(excel_file_path)
+    workbook = openpyxl.load_workbook(excel_file_path2)
 
     # Select a worksheet by name
     worksheet = workbook[gve_sheet]
 
     worksheet.append(new_data)
     
-    workbook.save(filename=excel_file_path)
+    workbook.save(filename=excel_file_path2)
+
+    workbook.close()
     
     for row in worksheet.iter_rows(values_only=True):
         print(row)

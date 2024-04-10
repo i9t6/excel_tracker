@@ -272,9 +272,8 @@ def handle_cards(api, incoming_msg):
     m = get_attachment_actions(incoming_msg["data"]["id"])
     print(f"Esto es el mensaje de respuesta: {m}")
 
-    if m['inputs']['data'] == 'add':
-        r = add_gve_record(m["inputs"])
-
+    r = add_gve_record(m["inputs"])
+    
     return f"card action was - {r}"
 
 
