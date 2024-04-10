@@ -1,0 +1,26 @@
+Bot access token
+MTE1N2YwMmEtZGUzZS00MjNmLThlNTYtODczY2Q2NGNkYWIzOGM5ZDQ2YjQtZjI2_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f
+
+Bot ID
+Y2lzY29zcGFyazovL3VzL0FQUExJQ0FUSU9OLzBmM2VkOGQ1LTM3YjUtNDQyMS1iNTJlLTE0NDBhODM5Y2U3Yw
+
+---------------- Ngrok installation
+
+curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
+	| sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+	&& echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
+	| sudo tee /etc/apt/sources.list.d/ngrok.list \
+	&& sudo apt update \
+	&& sudo apt install ngrok
+
+ngrok config add-authtoken 1dm7qrtYStr5t1ounvvOGrz615H_i4MAZWhLJiXbx4DVWEf6
+
+export TEAMS_BOT_URL=https://6aab-2806-104e-17-213a-ddf6-69e2-6dca-7d95.ngrok-free.app
+export TEAMS_BOT_TOKEN=MTE1N2YwMmEtZGUzZS00MjNmLThlNTYtODczY2Q2NGNkYWIzOGM5ZDQ2YjQtZjI2_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f
+export TEAMS_BOT_EMAIL=gve_sp_tracker@webex.bot
+export TEAMS_BOT_APP_NAME=GVE_SP_Tracker
+
+
+------------------ excel
+'/mnt/c/Users/frquiroz/OneDrive - Cisco/Documents/00 GVE/gve fy24'
+GVE SP Americas Report.xlsx
