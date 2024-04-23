@@ -15,7 +15,7 @@ curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
 
 ngrok config add-authtoken 1dm7qrtYStr5t1ounvvOGrz615H_i4MAZWhLJiXbx4DVWEf6
 
-export TEAMS_BOT_URL=https://6aab-2806-104e-17-213a-ddf6-69e2-6dca-7d95.ngrok-free.app
+export TEAMS_BOT_URL=https://5c1e-201-110-158-77.ngrok-free.app
 export TEAMS_BOT_TOKEN=MTE1N2YwMmEtZGUzZS00MjNmLThlNTYtODczY2Q2NGNkYWIzOGM5ZDQ2YjQtZjI2_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f
 export TEAMS_BOT_EMAIL=gve_sp_tracker@webex.bot
 export TEAMS_BOT_APP_NAME=GVE_SP_Tracker
@@ -26,3 +26,8 @@ export TEAMS_BOT_APP_NAME=GVE_SP_Tracker
 GVE SP Americas Report.xlsx
 
 ngrok http http://localhost:7001
+
+
+--------------- Jupyter, 
+Confirmar en VSCode que esta selecciondo el interprete del venv Crl Shift P 
+confirmar que en jupyter esta seleccionado ese env

@@ -10,6 +10,11 @@ from webexteamsbot.models import Response
 import sys
 import json
 from excel_db import *
+from card import *
+
+
+list_of_projects = []
+next_project = None
 
 # Retrieve required details from environment variables
 bot_email = os.getenv("TEAMS_BOT_EMAIL")
@@ -171,7 +176,7 @@ def show_card(incoming_msg):
                             "value": "Close"
                         }
                     ],
-                    "placeholder": "Placeholder text",
+                    "placeholder": "Status",
                     "id": "status",
                 },
                 {
@@ -234,23 +239,12 @@ def show_card(incoming_msg):
                     "data": "add",
                     "style": "positive",
                     "id": "button1"
-                },
-                {
-                    "type": "Action.Submit",
-                    "title": "Delete",
-                    "data": "remove",
-                    "style": "destructive",
-                    "id": "button2"
                 }
             ],
             "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
             "version": "1.0"
         }
     }
-    
-    
-
-
     
     backupmessage = "This is an example using Adaptive Cards."
 
@@ -263,177 +257,39 @@ def show_card(incoming_msg):
 # make sure to take the data that comes out of the MS card designer and
 # put it inside of the "content" below, otherwise Webex won't understand
 # what you send it.
-def show_card_update(incoming_msg):
-
-    attachment =  {
+def card_update(incoming_msg):
+    global list_of_projects, next_project
+    project_info = []
+    list_of_projects = find_matching_rows_by_email(incoming_msg.personEmail)
     
-        "contentType": "application/vnd.microsoft.card.adaptive",
-        "content": {
-            "type": "AdaptiveCard",
-            "body": [
-                {
-                    "type": "TextBlock",
-                    "text": "GVE SP Tracker (beta)",
-                    "size": "Medium",
-                    "color": "Dark"
-                },
-                {
-                    "type": "Input.Text",
-                    "placeholder": "Customer name",
-                    "id": "customer"
-                },
-                {
-                    "type": "Input.Text",
-                    "placeholder": "Name of the project",
-                    "id": "project"
-                },
-                {
-                    "type": "Input.ChoiceSet",
-                    "choices": [
-                        {
-                            "title": "RFP",
-                            "value": "RFP"
-                        },
-                        {
-                            "title": "RFI",
-                            "value": "RFI"
-                        },
-                        {
-                            "title": "GVE Support",
-                            "value": "GVE Support"
-                        },
-                        {
-                            "title": "Complex Design",
-                            "value": "Complex Design"
-                        }
-                    ],
-                    "placeholder": "Category of this engagement",
-                    "id": "category"
-                },
-                {
-                    "type": "Input.ChoiceSet",
-                    "choices": [
-                        {
-                            "title": "High",
-                            "value": "High"
-                        },
-                        {
-                            "title": "Medium",
-                            "value": "Medium"
-                        },
-                        {
-                            "title": "Low",
-                            "value": "Low"
-                        }
-                    ],
-                    "placeholder": "Estimated complexity",
-                    "id": "complexity"
-                },
-                {
-                    "type": "Input.ChoiceSet",
-                    "choices": [
-                        {
-                            "title": "WiP",
-                            "value": "WiP"
-                        },
-                        {
-                            "title": "CE Pending",
-                            "value": "CE Pending"
-                        },
-                        {
-                            "title": "Close",
-                            "value": "Close"
-                        }
-                    ],
-                    "placeholder": "Placeholder text",
-                    "id": "status",
-                },
-                {
-                    "type": "Input.ChoiceSet",
-                    "choices": [
-                        {
-                            "title": "AMER",
-                            "value": "AMER"
-                        },
-                        {
-                            "title": "EMEA",
-                            "value": "EMEA"
-                        },
-                        {
-                            "title": "APJC",
-                            "value": "APJC"
-                        }
-                    ],
-                    "placeholder": "Cisco region",
-                    "id": "region",
-                },
-                {
-                    "type": "Input.ChoiceSet",
-                    "choices": [
-                        {
-                            "title": "Alejandro Hernandez",
-                            "value": "AH"
-                        },
-                        {
-                            "title": "Francisco Quiroz",
-                            "value": "FQ"
-                        }
-                    ],
-                    "placeholder": "TSA Assigned",
-                    "id": "tsa",
-                },
-                {
-                    "type": "Input.ChoiceSet",
-                    "choices": [
-                        {
-                            "title": "Queue",
-                            "value": "Queue"
-                        },
-                        {
-                            "title": "GVE",
-                            "value": "GVE"
-                        },
-                        {
-                            "title": "Field",
-                            "value": "Field"
-                        }
-                    ],
-                    "placeholder": "Requester",
-                    "id": "user",
-                }     
-            ],
-            "actions": [{
-                    "type": "Action.Submit",
-                    "title": "Create",
-                    "data": "add",
-                    "style": "positive",
-                    "id": "button1"
-                },
-                {
-                    "type": "Action.Submit",
-                    "title": "Delete",
-                    "data": "remove",
-                    "style": "destructive",
-                    "id": "button2"
-                }
-            ],
-            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-            "version": "1.0"
-        }
-    }
+    print(f" --------1----> lista de proyectos {list_of_projects}")
+    if len(list_of_projects) > 0:
+        next_project = list_of_projects.pop(0)
+        
+        project_info.append(next_project['Customer'])
+        project_info.append(next_project['Project'])
+        project_info.append(next_project['Category'])
+        project_info.append(next_project['Complexity'])
+        project_info.append(next_project['Status'])
+        print(f"------ Primer renglon ------- {project_info} ")
+    
+        
+    attachment =  update_attachment(project_info)
     
 
     backupmessage = "This is an example using Adaptive Cards."
 
     c = create_message_with_attachment(
-        incoming_msg.roomId, msgtxt=backupmessage, attachment=attachment )
-    #print(f"Esto es el mensaje: {c}")
+            incoming_msg.roomId, msgtxt=backupmessage, attachment=attachment )
+        #print(f"Esto es el mensaje: {c}")
     return ""
 
 
 
 # An example of how to process card actions
 def handle_cards(api, incoming_msg):
+    global list_of_projects, next_project
+    project_info = []
     """
     Sample function to handle card actions.
     :param api: webexteamssdk object
@@ -441,10 +297,38 @@ def handle_cards(api, incoming_msg):
     :return: A text or markdown based reply
     """
     m = get_attachment_actions(incoming_msg["data"]["id"])
+    print(f"Esto es el incoming_msg mensaje de respuesta: {incoming_msg}")
     print(f"Esto es el mensaje de respuesta: {m}")
+    if len(list_of_projects)>0:
+        if m['inputs']['data'] == 'add':
+            r = add_gve_record(m["inputs"])
+        else:
+            print(f"------ Se trata de ------- {m['inputs']['data']}")
+            r= m['inputs']['data']
+            next_project = list_of_projects.pop(0)
+            print(f"el primer proyecto es {next_project}")
+            
+            project_info.append(next_project['Customer'])
+            project_info.append(next_project['Project'])
+            project_info.append(next_project['Category'])
+            project_info.append(next_project['Complexity'])
+            project_info.append(next_project['Status'])
+       
 
-    r = add_gve_record(m["inputs"])
-    
+        attachment =  update_attachment(project_info)
+
+        backupmessage = "This is an example using Adaptive Cards."
+
+        c = create_message_with_attachment(m['roomId'], msgtxt=backupmessage, attachment=attachment )
+        #print(f"Esto es el mensaje: {c}")
+        return ""
+    else:
+        ### Corregir esta salida y poner el codigo para actualizar segur next o delete
+        sender = bot.teams.people.get(m['personId'])
+        response = Response()
+        response.markdown = f"Hello {sender.firstName}, there a no more projects"
+        
+   
     return f"card action was - {r}"
 
 
@@ -543,8 +427,8 @@ bot.set_greeting(greeting)
 
 # Add new commands to the bot.
 bot.add_command("attachmentActions", "*", handle_cards)
-bot.add_command("/showcard", "show an adaptive card", show_card)
-bot.add_command("/update", "update a record", show_card_update)
+bot.add_command("/n", "New GVS SP Tracker record", show_card)
+bot.add_command("/u", "Update GVS SP Tracker record", card_update)
 bot.add_command("/dosomething", "help for do something", do_something)
 bot.add_command("/demo", "Sample that creates a Teams message to be returned.", ret_message)
 bot.add_command("/time", current_time_help, current_time)

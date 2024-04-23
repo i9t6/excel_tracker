@@ -4,7 +4,7 @@ import openpyxl
 category = {'RFP':3,'RFI':3,'GVE Support':1,'Complex Design':2}
 complexity ={'High':3,'Medium':2,'Low':1}
 status = {'WiP':1,'CE Pending':.1, 'Close':0}
-headers = ['customer','project','category','cat_effort','complexity','com_effort','effort','status','status_effort','region','tsa','user','total_hrs','webex_user']
+headers = ['id','customer','project','category','cat_effort','complexity','com_effort','effort','status','status_effort','region','tsa','user','total_hrs','webex_user']
 webex_user = {'AH':'alejher2@cisco.com', 'FQ':'frquiroz@cisco.com'}
 
 excel_file_path1 = 'gve_sp_americas_report.xlsx'
@@ -70,6 +70,9 @@ def add_gve_record(record_input):
     new_gve_record.records['webex_user'] = webex_user[new_gve_record.records['tsa']]
     new_gve_record.records['effort'] = new_gve_record.records['cat_effort'] * new_gve_record.records['com_effort']
     new_gve_record.records['total_hrs'] = new_gve_record.records['effort'] * new_gve_record.records['status_effort']
+    a, b = get_last_and_next_id()
+
+    new_gve_record.records['id'] = b
     
     return update_excel(new_gve_record.records)
 
@@ -93,3 +96,99 @@ def update_excel(new_record):
         print(row)
 
     return f'ok se actualizo excel {new_data}'
+
+
+def find_matching_rows_by_email(email_to_match, email_column_name='webex_user', 
+                                include_columns=['ID','Customer', 'Project', 'Category','Complexity','Status']):
+    """
+    Finds rows in an Excel file where the specified email column matches the given email address 
+    and returns selected columns: Customer, Project, and Status.
+
+    :param excel_file_path: Path to the Excel file
+    :param email_to_match: Email address to match in the column
+    :param email_column_name: Column header name that contains the email addresses (default is 'webex_user')
+    :param include_columns: List of columns to include in the result (default includes Customer, Project, and Status)
+    :return: List of dictionaries with the selected columns from rows that match the email address
+    """
+    # Load the workbook and select the active worksheet
+    wb = openpyxl.load_workbook(excel_file_path2)
+    ws = wb.active
+
+    # Find the column indices for the email column and include_columns
+    columns_indices = {}
+    for col in ws.iter_cols(1, ws.max_column):
+        if col[0].value == email_column_name:
+            columns_indices[email_column_name] = col[0].column - 1  # Adjust for zero-indexing
+        elif col[0].value in include_columns:
+            columns_indices[col[0].value] = col[0].column - 1  # Adjust for zero-indexing
+
+    # Check if all required columns were found
+    if email_column_name not in columns_indices:
+        print(f"Column '{email_column_name}' not found.")
+        return []
+    for col_name in include_columns:
+        if col_name not in columns_indices:
+            print(f"Column '{col_name}' not found.")
+            return []
+
+    # Iterate over rows and check if the email matches
+    matching_rows = []
+    for row in ws.iter_rows(min_row=2):  # Assuming the first row is the header
+        if row[columns_indices[email_column_name]].value == email_to_match:
+            # Extract the selected columns
+            row_data = {col_name: row[idx].value for col_name, idx in columns_indices.items() if col_name in include_columns}
+            matching_rows.append(row_data)
+
+    # Close the workbook if you're done with it
+    wb.close()
+
+    return matching_rows
+
+
+
+def get_last_and_next_id(id_column_name='ID'):
+    """
+    Gets the last and next ID from a specified column in an Excel file.
+
+    :param excel_file_path: Path to the Excel file
+    :param id_column_name: Column header name that contains the ID records (default is 'ID')
+    :return: A tuple containing the last ID and the next ID
+    """
+    # Load the workbook and select the active worksheet
+    wb = openpyxl.load_workbook(excel_file_path2)
+    ws = wb.active
+
+    # Find the column index for the ID column
+    id_column_index = None
+    for cell in ws[1]:  # Assuming the first row is the header
+        if cell.value == id_column_name:
+            id_column_index = cell.column  # column index
+            break
+
+    if id_column_index is None:
+        print(f"Column '{id_column_name}' not found.")
+        return None, None
+
+    # Find the last ID in the column
+    last_id = None
+    for cell in ws.iter_cols(min_col=id_column_index, max_col=id_column_index, min_row=2):
+        for c in cell:
+            if c.value is not None:
+                last_id = c.value
+
+    # Close the workbook
+    wb.close()
+
+    if last_id is None:
+        print(f"No ID records found in column '{id_column_name}'.")
+        return None, None
+
+    # Assuming that the ID is numeric and the next ID is just an increment of the last ID
+    try:
+        last_id = int(last_id)  # Convert last ID to integer if it's not already
+        next_id = last_id + 1
+    except ValueError:
+        print(f"Last ID '{last_id}' is not numeric.")
+        return None, None
+
+    return last_id, next_id
